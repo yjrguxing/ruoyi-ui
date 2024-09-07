@@ -12,7 +12,7 @@
           type="text"
           size="large"
           auto-complete="off"
-          placeholder="アカウント"
+          placeholder="请输入用户名"
         >
           <template #prefix><svg-icon icon-class="user" class="el-input__icon input-icon" /></template>
         </el-input>
@@ -23,7 +23,7 @@
           type="password"
           size="large"
           auto-complete="off"
-          placeholder="パスワード"
+          placeholder="请输入密码"
           show-password
           @keyup.enter="handleLogin"
         >
@@ -35,7 +35,7 @@
           v-model="loginForm.code"
           size="large"
           auto-complete="off"
-          placeholder="認証コード"
+          placeholder="请输入验证码"
           style="width: 63%"
           @keyup.enter="handleLogin"
         >
@@ -178,7 +178,7 @@ getCookie();
   justify-content: center;
   align-items: center;
   height: 100%;
-  background-image: url("../assets/images/login-background.png");
+  background-image: url("../assets/images/login-background.jpg");
   background-size: cover;
 }
 .title {
