@@ -1,0 +1,134 @@
+<template>
+  <div class="top-right-btn" :style="style">
+    <el-row>
+      <el-tooltip class="item" effect="dark" :content="showSearch ? '検索を隠す' : '検索を表示する'" placement="top" v-if="search">
+        <el-button circle icon="Search" @click="toggleSearch()" />
+      </el-tooltip>
+      <el-tooltip class="item" effect="dark" content="リフレッシュ" placement="top">
+        <el-button circle icon="Refresh" @click="refresh()" />
+      </el-tooltip>
+      <el-tooltip class="item" effect="dark" content="列の表示、非表示" placement="top" v-if="columns">
+        <el-button circle icon="Menu" @click="showColumn()" v-if="showColumnsType == 'transfer'"/>
+        <el-dropdown trigger="click" :hide-on-click="false" style="padding-left: 12px" v-if="showColumnsType == 'checkbox'">
+          <el-button circle icon="Menu" />
+          <template #dropdown>
+            <el-dropdown-menu>
+              <template v-for="item in columns" :key="item.key">
+                <el-dropdown-item>
+                  <el-checkbox :checked="item.visible" @change="checkboxChange($event, item.label)" :label="item.label" />
+                </el-dropdown-item>
+              </template>
+            </el-dropdown-menu>
+          </template>
+        </el-dropdown>
+      </el-tooltip>
+    </el-row>
+    <el-dialog :title="title" v-model="open" append-to-body>
+      <el-transfer
+        :titles="['表示', '非表示']"
+        v-model="value"
+        :data="columns"
+        @change="dataChange"
+      ></el-transfer>
+    </el-dialog>
+  </div>
+</template>
+
+<script setup>
+const props = defineProps({
+  /* 取得条件を表示するかどうか */
+  showSearch: {
+    type: Boolean,
+    default: true,
+  },
+  /* ひょうじれつじょうほう */
+  columns: {
+    type: Array,
+  },
+  /* 取得アイコンを表示するかどうか */
+  search: {
+    type: Boolean,
+    default: true,
+  },
+  /* 非表示カラムコピー（transferシャトルボックス、checkboxチェックボックス）*/
+  showColumnsType: {
+    type: String,
+    default: "checkbox",
+  },
+  /* 右外側余白 */
+  gutter: {
+    type: Number,
+    default: 10,
+  },
+})
+
+const emits = defineEmits(['update:showSearch', 'queryTable']);
+
+// 隠データ
+const value = ref([]);
+// タイトル
+const title = ref("表示/非表示");
+//ポップアップを表示するか
+const open = ref(false);
+
+const style = computed(() => {
+  const ret = {};
+  if (props.gutter) {
+    ret.marginRight = `${props.gutter / 2}px`;
+  }
+  return ret;
+});
+
+// 検索
+function toggleSearch() {
+  emits("update:showSearch", !props.showSearch);
+}
+
+// リフレッシュ
+function refresh() {
+  emits("queryTable");
+}
+
+// 右側のレスター要素の変化
+function dataChange(data) {
+  for (let item in props.columns) {
+    const key = props.columns[item].key;
+    props.columns[item].visible = !data.includes(key);
+  }
+}
+
+// 非表示カラムdialogを開く
+function showColumn() {
+  open.value = true;
+}
+
+if (props.showColumnsType == 'transfer') {
+  // 列の初期デフォルトの非表示列の表示
+  for (let item in props.columns) {
+    if (props.columns[item].visible === false) {
+      value.value.push(parseInt(item));
+    }
+  }
+}
+
+// チェック
+function checkboxChange(event, label) {
+  props.columns.filter(item => item.label == label)[0].visible = event;
+}
+
+</script>
+
+<style lang='scss' scoped>
+:deep(.el-transfer__button) {
+  border-radius: 50%;
+  display: block;
+  margin-left: 0px;
+}
+:deep(.el-transfer__button:first-child) {
+  margin-bottom: 10px;
+}
+:deep(.el-dropdown-menu__item) {
+  line-height: 30px;
+  padding: 0 17px;
+}
+</style>
